@@ -19,7 +19,7 @@ steering_data = []
 laps = []
 
 # Read each CSV file (assuming they are named 'testlap1.csv', 'testlap2.csv', etc.)
-file_pattern = "testlap*.csv"
+file_pattern = "racelap*.csv"
 files = glob.glob(file_pattern)
 
 if files:

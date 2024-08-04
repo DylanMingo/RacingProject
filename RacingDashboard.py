@@ -17,30 +17,33 @@ clutch_data = []
 steering_data = []
 laps = []
 
-# Read each CSV file (assuming they are named 'lap1.csv', 'lap2.csv', etc.)
+# Read each CSV file (assuming they are named 'testlap1.csv', 'testlap2.csv', etc.)
 file_pattern = "testlap*.csv"
 files = glob.glob(file_pattern)
 
-for idx, file in enumerate(files):
-    df = pd.read_csv(file)
+if files:
+    for idx, file in enumerate(files):
+        df = pd.read_csv(file)
 
-    # Filter the data to include only points where speed > 0.5 mph
-    df = df[df['Vehicle Speed (mph)'] > 0.5]
+        # Filter the data to include only points where speed > 0.5 mph
+        df = df[df['Vehicle Speed (mph)'] > 0.5]
 
-    # Adjust the time data to start from zero for each lap
-    df['Time (sec)'] = df['Time (sec)'] - df['Time (sec)'].iloc[0]
+        # Adjust the time data to start from zero for each lap
+        df['Time (sec)'] = df['Time (sec)'] - df['Time (sec)'].iloc[0]
 
-    # Replace gear position 15 with None to create gaps in the plot
-    df['Gear Current (Gear)'] = df['Gear Current (Gear)'].apply(lambda x: None if x == 15 else x)
+        # Replace gear position 15 with None to create gaps in the plot
+        df['Gear Current (Gear)'] = df['Gear Current (Gear)'].apply(lambda x: None if x == 15 else x)
 
-    time_data.append(df['Time (sec)'])
-    speed_data.append(df['Vehicle Speed (mph)'])
-    rpm_data.append(df['Engine RPM (RPM)'])
-    gear_data.append(df['Gear Current (Gear)'])
-    accel_data.append(df['Accel. Pedal Pos. (%)'])
-    clutch_data.append(df['Clutch Pedal Pos. (%)'])
-    steering_data.append(df['(TC) Steering Wheel Angle (degrees)'])
-    laps.append(f'Lap {idx + 1}')
+        time_data.append(df['Time (sec)'])
+        speed_data.append(df['Vehicle Speed (mph)'])
+        rpm_data.append(df['Engine RPM (RPM)'])
+        gear_data.append(df['Gear Current (Gear)'])
+        accel_data.append(df['Accel. Pedal Pos. (%)'])
+        clutch_data.append(df['Clutch Pedal Pos. (%)'])
+        steering_data.append(df['(TC) Steering Wheel Angle (degrees)'])
+        laps.append(f'Lap {idx + 1}')
+else:
+    print("No files found matching the pattern 'testlap*.csv'.")
 
 # Define the layout for dark background
 layout = go.Layout(
@@ -103,7 +106,7 @@ app.layout = html.Div([
         dcc.Dropdown(
             id='lap-dropdown',
             options=[{'label': lap, 'value': lap} for lap in laps],
-            value=[laps[0]],
+            value=[laps[0]] if laps else [],
             multi=True,
             style={'backgroundColor': '#333', 'color': 'white'}
         ),
@@ -169,7 +172,6 @@ def update_combined_graph(selected_laps, selected_metrics):
     )
 
     return combined_fig
-
 
 # Run the app
 if __name__ == '__main__':

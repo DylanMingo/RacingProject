@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import glob
 from dash import Dash, dcc, html, Input, Output
@@ -5,7 +6,6 @@ import plotly.graph_objs as go
 
 # Initialize the Dash app
 app = Dash(__name__)
-server= app.server
 
 # Initialize lists to hold data for each lap
 time_data = []
@@ -173,4 +173,5 @@ def update_combined_graph(selected_laps, selected_metrics):
 
 # Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    port = int(os.environ.get("PORT", 8050))
+    app.run_server(debug=True, host="0.0.0.0", port=port)

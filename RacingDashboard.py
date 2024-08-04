@@ -5,6 +5,7 @@ import plotly.graph_objs as go
 
 # Initialize the Dash app
 app = Dash(__name__)
+server= app.server
 
 # Initialize lists to hold data for each lap
 time_data = []

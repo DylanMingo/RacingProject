@@ -94,7 +94,7 @@ steering_fig.update_layout(title='Steering Wheel Angle over Time', xaxis_title='
 app.layout = html.Div([
     dcc.Tabs(id="tabs", children=[
         dcc.Tab(label='Race Data Dashboard', children=[
-            html.H1('Car Racing Data Dashboard', style={'color': 'white', 'textAlign': 'center'}),
+            html.H1('Racing Data Dashboard', style={'color': 'white', 'textAlign': 'center'}),
             dcc.Graph(figure=speed_fig),
             dcc.Graph(figure=rpm_fig),
             dcc.Graph(figure=gear_fig),

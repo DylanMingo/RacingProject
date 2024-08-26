@@ -93,7 +93,7 @@ steering_fig.update_layout(title='Steering Wheel Angle over Time', xaxis_title='
 # Define the layout of the app with Tabs
 app.layout = html.Div([
     dcc.Tabs(id="tabs", children=[
-        dcc.Tab(label='Dashboard', children=[
+        dcc.Tab(label='Race Data Dashboard', children=[
             html.H1('Car Racing Data Dashboard', style={'color': 'white', 'textAlign': 'center'}),
             dcc.Graph(figure=speed_fig),
             dcc.Graph(figure=rpm_fig),
@@ -134,7 +134,7 @@ app.layout = html.Div([
             html.H2('About Me', style={'color': 'white'}),
             html.P('Write something about yourself here.', style={'color': 'white'})
         ]),
-        dcc.Tab(label='Upload Videos', children=[
+        dcc.Tab(label='Race Videos', children=[
             html.H2('Upload Videos', style={'color': 'white'}),
             dcc.Upload(
                 id='upload-video',
@@ -153,7 +153,7 @@ app.layout = html.Div([
             ),
             html.Div(id='output-video-upload', style={'color': 'white'})
         ]),
-        dcc.Tab(label='Race Details', children=[
+        dcc.Tab(label='Race Results', children=[
             html.H2('Race Details', style={'color': 'white'}),
             # Placeholder for race details content
             html.P('Race times, positions, and other details will be displayed here.', style={'color': 'white'})

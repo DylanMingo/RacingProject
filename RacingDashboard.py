@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import glob
-from dash import Dash, dcc, html, Input, Output
+from dash import Dash, dcc, html, Input, Output, State
 import plotly.graph_objs as go
 
 # Initialize the Dash app
@@ -18,7 +18,7 @@ clutch_data = []
 steering_data = []
 laps = []
 
-# Read each CSV file (assuming they are named 'testlap1.csv', 'testlap2.csv', etc.)
+# Read each CSV file (assuming they are named 'racelap1.csv', 'racelap2.csv', etc.)
 file_pattern = "racelap*.csv"
 files = glob.glob(file_pattern)
 
@@ -44,7 +44,7 @@ if files:
         steering_data.append(df['(TC) Steering Wheel Angle (degrees)'])
         laps.append(f'Lap {idx + 1}')
 else:
-    print("No files found matching the pattern 'testlap*.csv'.")
+    print("No files found matching the pattern 'racelap*.csv'.")
 
 # Define the layout for dark background
 layout = go.Layout(
@@ -90,50 +90,78 @@ for i in range(len(time_data)):
 steering_fig.update_layout(title='Steering Wheel Angle over Time', xaxis_title='Time (s)',
                            yaxis_title='Steering Wheel Angle (degrees)')
 
-# Create figure for combined data
-combined_fig = go.Figure(layout=layout)
-
-# Define the layout of the app
+# Define the layout of the app with Tabs
 app.layout = html.Div([
-    html.H1('Car Racing Data Dashboard', style={'color': 'white', 'textAlign': 'center'}),
-    dcc.Graph(figure=speed_fig),
-    dcc.Graph(figure=rpm_fig),
-    dcc.Graph(figure=gear_fig),
-    dcc.Graph(figure=accel_fig),
-    dcc.Graph(figure=clutch_fig),
-    dcc.Graph(figure=steering_fig),
-    html.Div([
-        html.Label('Select Lap:', style={'color': 'white'}),
-        dcc.Dropdown(
-            id='lap-dropdown',
-            options=[{'label': lap, 'value': lap} for lap in laps],
-            value=[laps[0]] if laps else [],
-            multi=True,
-            style={'backgroundColor': '#333', 'color': 'white'}
-        ),
-    ], style={'width': '48%', 'display': 'inline-block'}),
-    html.Div([
-        html.Label('Select Metric:', style={'color': 'white'}),
-        dcc.Dropdown(
-            id='metric-dropdown',
-            options=[
-                {'label': 'Speed', 'value': 'speed'},
-                {'label': 'Engine RPM', 'value': 'rpm'},
-                {'label': 'Gear', 'value': 'gear'},
-                {'label': 'Accelerator Pedal Position', 'value': 'accel'},
-                {'label': 'Clutch Pedal Position', 'value': 'clutch'},
-                {'label': 'Steering Wheel Angle', 'value': 'steering'},
-            ],
-            value=['speed'],
-            multi=True,
-            style={'backgroundColor': '#333', 'color': 'white'}
-        ),
-    ], style={'width': '48%', 'display': 'inline-block'}),
-    dcc.Graph(id='combined-graph')
-], style={'backgroundColor': 'black', 'color': 'white'})
+    dcc.Tabs(id="tabs", children=[
+        dcc.Tab(label='Dashboard', children=[
+            html.H1('Car Racing Data Dashboard', style={'color': 'white', 'textAlign': 'center'}),
+            dcc.Graph(figure=speed_fig),
+            dcc.Graph(figure=rpm_fig),
+            dcc.Graph(figure=gear_fig),
+            dcc.Graph(figure=accel_fig),
+            dcc.Graph(figure=clutch_fig),
+            dcc.Graph(figure=steering_fig),
+            html.Div([
+                html.Label('Select Lap:', style={'color': 'white'}),
+                dcc.Dropdown(
+                    id='lap-dropdown',
+                    options=[{'label': lap, 'value': lap} for lap in laps],
+                    value=[laps[0]] if laps else [],
+                    multi=True,
+                    style={'backgroundColor': '#333', 'color': 'white'}
+                ),
+            ], style={'width': '48%', 'display': 'inline-block'}),
+            html.Div([
+                html.Label('Select Metric:', style={'color': 'white'}),
+                dcc.Dropdown(
+                    id='metric-dropdown',
+                    options=[
+                        {'label': 'Speed', 'value': 'speed'},
+                        {'label': 'Engine RPM', 'value': 'rpm'},
+                        {'label': 'Gear', 'value': 'gear'},
+                        {'label': 'Accelerator Pedal Position', 'value': 'accel'},
+                        {'label': 'Clutch Pedal Position', 'value': 'clutch'},
+                        {'label': 'Steering Wheel Angle', 'value': 'steering'},
+                    ],
+                    value=['speed'],
+                    multi=True,
+                    style={'backgroundColor': '#333', 'color': 'white'}
+                ),
+            ], style={'width': '48%', 'display': 'inline-block'}),
+            dcc.Graph(id='combined-graph')
+        ]),
+        dcc.Tab(label='About Me', children=[
+            html.H2('About Me', style={'color': 'white'}),
+            html.P('Write something about yourself here.', style={'color': 'white'})
+        ]),
+        dcc.Tab(label='Upload Videos', children=[
+            html.H2('Upload Videos', style={'color': 'white'}),
+            dcc.Upload(
+                id='upload-video',
+                children=html.Div([
+                    'Drag and Drop or ',
+                    html.A('Select Files')
+                ], style={
+                    'borderWidth': '1px',
+                    'borderStyle': 'dashed',
+                    'borderRadius': '5px',
+                    'textAlign': 'center',
+                    'margin': '10px',
+                    'color': 'white'
+                }),
+                multiple=True
+            ),
+            html.Div(id='output-video-upload', style={'color': 'white'})
+        ]),
+        dcc.Tab(label='Race Details', children=[
+            html.H2('Race Details', style={'color': 'white'}),
+            # Placeholder for race details content
+            html.P('Race times, positions, and other details will be displayed here.', style={'color': 'white'})
+        ])
+    ], style={'backgroundColor': 'black', 'color': 'white'})
+])
 
-
-# Define the callback to update the combined graph
+# Callback for the combined graph
 @app.callback(
     Output('combined-graph', 'figure'),
     [Input('lap-dropdown', 'value'), Input('metric-dropdown', 'value')]
@@ -173,6 +201,22 @@ def update_combined_graph(selected_laps, selected_metrics):
     )
 
     return combined_fig
+
+# Callback for video upload
+@app.callback(
+    Output('output-video-upload', 'children'),
+    [Input('upload-video', 'contents')],
+    [State('upload-video', 'filename'), State('upload-video', 'last_modified')]
+)
+def update_output(list_of_contents, list_of_names, list_of_dates):
+    if list_of_contents is not None:
+        children = [
+            html.Div([
+                html.H5(filename),
+                html.Video(src=content, controls=True, style={'width': '100%'})
+            ]) for content, filename in zip(list_of_contents, list_of_names)
+        ]
+        return children
 
 # Run the app
 if __name__ == '__main__':

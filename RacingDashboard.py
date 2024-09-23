@@ -18,22 +18,13 @@ clutch_data = []
 steering_data = []
 laps = []
 
-# Read each Excel file (assuming they are named like 'PE9_Lap1.xlsx', 'PE11_Lap2.xlsx', etc.)
-file_pattern = "*.xlsx"  # Adjust the pattern for Excel files
+# Read each CSV file using the correct pattern for your file naming convention
+file_pattern = "PE*_Lap*.csv"
 files = glob.glob(file_pattern)
 
 if files:
-    for file in files:
-        # Extract the lap identifier from the file name
-        file_name = os.path.basename(file).replace('.xlsx', '')
-        
-        # For example, "PE9_Lap1" becomes Lap 9-1
-        lap_event = file_name.split("_")[0]  # "PE9"
-        lap_number = file_name.split("_")[1]  # "Lap1"
-        lap_display_name = f'{lap_event} - {lap_number}'
-        
-        # Read the Excel file
-        df = pd.read_excel(file)
+    for idx, file in enumerate(files):
+        df = pd.read_csv(file)
 
         # Filter the data to include only points where speed > 0.5 mph
         df = df[df['Vehicle Speed (mph)'] > 0.5]
@@ -44,6 +35,11 @@ if files:
         # Replace gear position 15 with None to create gaps in the plot
         df['Gear Current (Gear)'] = df['Gear Current (Gear)'].apply(lambda x: None if x == 15 else x)
 
+        # Extract event number and lap number from the filename
+        event_num = file.split('_')[0][2:]  # Extract the number after 'PE'
+        lap_num = file.split('_')[1][3:].split('.')[0]  # Extract the number after 'Lap'
+
+        # Use the event and lap numbers for naming
         time_data.append(df['Time (sec)'])
         speed_data.append(df['Vehicle Speed (mph)'])
         rpm_data.append(df['Engine RPM (RPM)'])
@@ -51,11 +47,9 @@ if files:
         accel_data.append(df['Accel. Pedal Pos. (%)'])
         clutch_data.append(df['Clutch Pedal Pos. (%)'])
         steering_data.append(df['(TC) Steering Wheel Angle (degrees)'])
-        
-        # Append the lap display name
-        laps.append(lap_display_name)
+        laps.append(f'Event {event_num} - Lap {lap_num}')
 else:
-    print("No files found matching the pattern '*.xlsx'.")
+    print("No files found matching the pattern 'PE*_Lap*.csv'.")
 
 # Define the layout for dark background
 layout = go.Layout(
@@ -122,7 +116,7 @@ app.layout = html.Div([
                     style={'backgroundColor': '#333', 'color': 'white'}
                 ),
             ], style={'width': '48%', 'display': 'inline-block'}),
-            html.Div([ 
+            html.Div([
                 html.Label('Select Metric:', style={'color': 'white'}),
                 dcc.Dropdown(
                     id='metric-dropdown',
@@ -166,6 +160,7 @@ app.layout = html.Div([
         ]),
         dcc.Tab(label='Race Results', children=[
             html.H2('Race Details', style={'color': 'white'}),
+            # Placeholder for race details content
             html.P('Race times, positions, and other details will be displayed here.', style={'color': 'white'})
         ])
     ], style={'backgroundColor': 'black', 'color': 'white'})
@@ -232,3 +227,4 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8050))
     app.run_server(debug=True, host="0.0.0.0", port=port)
+

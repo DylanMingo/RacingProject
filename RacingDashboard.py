@@ -18,13 +18,22 @@ clutch_data = []
 steering_data = []
 laps = []
 
-# Read each CSV file (assuming they are named 'racelap1.csv', 'racelap2.csv', etc.)
-file_pattern = "racelap*.csv"
+# Read each Excel file (assuming they are named like 'PE9_Lap1.xlsx', 'PE11_Lap2.xlsx', etc.)
+file_pattern = "*.xlsx"  # Adjust the pattern for Excel files
 files = glob.glob(file_pattern)
 
 if files:
-    for idx, file in enumerate(files):
-        df = pd.read_csv(file)
+    for file in files:
+        # Extract the lap identifier from the file name
+        file_name = os.path.basename(file).replace('.xlsx', '')
+        
+        # For example, "PE9_Lap1" becomes Lap 9-1
+        lap_event = file_name.split("_")[0]  # "PE9"
+        lap_number = file_name.split("_")[1]  # "Lap1"
+        lap_display_name = f'{lap_event} - {lap_number}'
+        
+        # Read the Excel file
+        df = pd.read_excel(file)
 
         # Filter the data to include only points where speed > 0.5 mph
         df = df[df['Vehicle Speed (mph)'] > 0.5]
@@ -42,9 +51,11 @@ if files:
         accel_data.append(df['Accel. Pedal Pos. (%)'])
         clutch_data.append(df['Clutch Pedal Pos. (%)'])
         steering_data.append(df['(TC) Steering Wheel Angle (degrees)'])
-        laps.append(f'Lap {idx + 1}')
+        
+        # Append the lap display name
+        laps.append(lap_display_name)
 else:
-    print("No files found matching the pattern 'racelap*.csv'.")
+    print("No files found matching the pattern '*.xlsx'.")
 
 # Define the layout for dark background
 layout = go.Layout(
@@ -59,34 +70,34 @@ layout = go.Layout(
 # Create individual figures
 speed_fig = go.Figure(layout=layout)
 for i in range(len(time_data)):
-    speed_fig.add_trace(go.Scatter(x=time_data[i], y=speed_data[i], mode='lines', name=f'Lap {i + 1}'))
+    speed_fig.add_trace(go.Scatter(x=time_data[i], y=speed_data[i], mode='lines', name=laps[i]))
 speed_fig.update_layout(title='Speed over Time', xaxis_title='Time (s)', yaxis_title='Speed (mph)')
 
 rpm_fig = go.Figure(layout=layout)
 for i in range(len(time_data)):
-    rpm_fig.add_trace(go.Scatter(x=time_data[i], y=rpm_data[i], mode='lines', name=f'Lap {i + 1}'))
+    rpm_fig.add_trace(go.Scatter(x=time_data[i], y=rpm_data[i], mode='lines', name=laps[i]))
 rpm_fig.update_layout(title='Engine RPM over Time', xaxis_title='Time (s)', yaxis_title='Engine RPM')
 
 gear_fig = go.Figure(layout=layout)
 for i in range(len(time_data)):
-    gear_fig.add_trace(go.Scatter(x=time_data[i], y=gear_data[i], mode='lines', name=f'Lap {i + 1}'))
+    gear_fig.add_trace(go.Scatter(x=time_data[i], y=gear_data[i], mode='lines', name=laps[i]))
 gear_fig.update_layout(title='Gear over Time', xaxis_title='Time (s)', yaxis_title='Gear')
 
 accel_fig = go.Figure(layout=layout)
 for i in range(len(time_data)):
-    accel_fig.add_trace(go.Scatter(x=time_data[i], y=accel_data[i], mode='lines', name=f'Lap {i + 1}'))
+    accel_fig.add_trace(go.Scatter(x=time_data[i], y=accel_data[i], mode='lines', name=laps[i]))
 accel_fig.update_layout(title='Accelerator Pedal Position over Time', xaxis_title='Time (s)',
                         yaxis_title='Accelerator Pedal Position (%)')
 
 clutch_fig = go.Figure(layout=layout)
 for i in range(len(time_data)):
-    clutch_fig.add_trace(go.Scatter(x=time_data[i], y=clutch_data[i], mode='lines', name=f'Lap {i + 1}'))
+    clutch_fig.add_trace(go.Scatter(x=time_data[i], y=clutch_data[i], mode='lines', name=laps[i]))
 clutch_fig.update_layout(title='Clutch Pedal Position over Time', xaxis_title='Time (s)',
                          yaxis_title='Clutch Pedal Position (%)')
 
 steering_fig = go.Figure(layout=layout)
 for i in range(len(time_data)):
-    steering_fig.add_trace(go.Scatter(x=time_data[i], y=steering_data[i], mode='lines', name=f'Lap {i + 1}'))
+    steering_fig.add_trace(go.Scatter(x=time_data[i], y=steering_data[i], mode='lines', name=laps[i]))
 steering_fig.update_layout(title='Steering Wheel Angle over Time', xaxis_title='Time (s)',
                            yaxis_title='Steering Wheel Angle (degrees)')
 
@@ -111,7 +122,7 @@ app.layout = html.Div([
                     style={'backgroundColor': '#333', 'color': 'white'}
                 ),
             ], style={'width': '48%', 'display': 'inline-block'}),
-            html.Div([
+            html.Div([ 
                 html.Label('Select Metric:', style={'color': 'white'}),
                 dcc.Dropdown(
                     id='metric-dropdown',
@@ -155,7 +166,6 @@ app.layout = html.Div([
         ]),
         dcc.Tab(label='Race Results', children=[
             html.H2('Race Details', style={'color': 'white'}),
-            # Placeholder for race details content
             html.P('Race times, positions, and other details will be displayed here.', style={'color': 'white'})
         ])
     ], style={'backgroundColor': 'black', 'color': 'white'})

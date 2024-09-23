@@ -113,7 +113,7 @@ app.layout = html.Div([
                     options=[{'label': lap, 'value': lap} for lap in laps],
                     value=[laps[0]] if laps else [],
                     multi=True,
-                    style={'backgroundColor': '#333', 'color': 'white'}
+                    style={'backgroundColor': 'black', 'color': 'white', 'border': '1px solid white'}
                 ),
             ], style={'width': '48%', 'display': 'inline-block'}),
             html.Div([
@@ -130,7 +130,7 @@ app.layout = html.Div([
                     ],
                     value=['speed'],
                     multi=True,
-                    style={'backgroundColor': '#333', 'color': 'white'}
+                    style={'backgroundColor': 'black', 'color': 'white', 'border': '1px solid white'}
                 ),
             ], style={'width': '48%', 'display': 'inline-block'}),
             dcc.Graph(id='combined-graph')
@@ -152,7 +152,8 @@ app.layout = html.Div([
                     'borderRadius': '5px',
                     'textAlign': 'center',
                     'margin': '10px',
-                    'color': 'white'
+                    'color': 'white',
+                    'backgroundColor': 'black'  # Ensure dark background for upload area
                 }),
                 multiple=True
             ),
@@ -160,10 +161,14 @@ app.layout = html.Div([
         ]),
         dcc.Tab(label='Race Results', children=[
             html.H2('Race Details', style={'color': 'white'}),
-            # Placeholder for race details content
             html.P('Race times, positions, and other details will be displayed here.', style={'color': 'white'})
         ])
-    ], style={'backgroundColor': 'black', 'color': 'white'})
+    ], style={'backgroundColor': 'black'},  # Set black background for tabs area
+    colors={
+        "border": "white",  # White border for tabs
+        "primary": "black",  # Active tab background
+        "background": "black"  # Inactive tab background
+    })
 ])
 
 # Callback for the combined graph

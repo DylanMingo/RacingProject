@@ -29,29 +29,35 @@ if files:
 
         # Extract event type and lap number from the filename
         filename = os.path.basename(file)
-        event_type = filename.split('_')[0]
-        lap_number = filename.split('_')[1].replace('Lap', '')
+        parts = filename.split('_')
 
-        # Store unique event types
-        events.add(event_type)
+        # Ensure the filename follows the expected format (event_type_Lap#)
+        if len(parts) == 2 and 'Lap' in parts[1]:
+            event_type = parts[0]
+            lap_number = parts[1].replace('Lap', '')
 
-        # Filter the data to include only points where speed > 0.5 mph
-        df = df[df['Vehicle Speed (mph)'] > 0.5]
+            # Store unique event types
+            events.add(event_type)
 
-        # Adjust the time data to start from zero for each lap
-        df['Time (sec)'] = df['Time (sec)'] - df['Time (sec)'].iloc[0]
+            # Filter the data to include only points where speed > 0.5 mph
+            df = df[df['Vehicle Speed (mph)'] > 0.5]
 
-        # Replace gear position 15 with None to create gaps in the plot
-        df['Gear Current (Gear)'] = df['Gear Current (Gear)'].apply(lambda x: None if x == 15 else x)
+            # Adjust the time data to start from zero for each lap
+            df['Time (sec)'] = df['Time (sec)'] - df['Time (sec)'].iloc[0]
 
-        time_data.append(df['Time (sec)'])
-        speed_data.append(df['Vehicle Speed (mph)'])
-        rpm_data.append(df['Engine RPM (RPM)'])
-        gear_data.append(df['Gear Current (Gear)'])
-        accel_data.append(df['Accel. Pedal Pos. (%)'])
-        clutch_data.append(df['Clutch Pedal Pos. (%)'])
-        steering_data.append(df['(TC) Steering Wheel Angle (degrees)'])
-        laps.append({'event_type': event_type, 'lap': f'Lap {lap_number}'})
+            # Replace gear position 15 with None to create gaps in the plot
+            df['Gear Current (Gear)'] = df['Gear Current (Gear)'].apply(lambda x: None if x == 15 else x)
+
+            time_data.append(df['Time (sec)'])
+            speed_data.append(df['Vehicle Speed (mph)'])
+            rpm_data.append(df['Engine RPM (RPM)'])
+            gear_data.append(df['Gear Current (Gear)'])
+            accel_data.append(df['Accel. Pedal Pos. (%)'])
+            clutch_data.append(df['Clutch Pedal Pos. (%)'])
+            steering_data.append(df['(TC) Steering Wheel Angle (degrees)'])
+            laps.append({'event_type': event_type, 'lap': f'Lap {lap_number}'})
+        else:
+            print(f"Skipping file with unexpected format: {filename}")
 else:
     print("No files found matching the pattern '*.csv'.")
 
@@ -202,4 +208,3 @@ def update_combined_graph(selected_laps, selected_metrics):
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8050))
     app.run_server(debug=True, host="0.0.0.0", port=port)
-

@@ -71,6 +71,37 @@ layout = go.Layout(
     title=dict(x=0.5, xanchor='center')
 )
 
+# Create individual figures for each metric
+speed_fig = go.Figure(layout=layout)
+for i in range(len(time_data)):
+    speed_fig.add_trace(go.Scatter(x=time_data[i], y=speed_data[i], mode='lines', name=f'Lap {i + 1}'))
+speed_fig.update_layout(title='Speed over Time', xaxis_title='Time (s)', yaxis_title='Speed (mph)')
+
+rpm_fig = go.Figure(layout=layout)
+for i in range(len(time_data)):
+    rpm_fig.add_trace(go.Scatter(x=time_data[i], y=rpm_data[i], mode='lines', name=f'Lap {i + 1}'))
+rpm_fig.update_layout(title='Engine RPM over Time', xaxis_title='Time (s)', yaxis_title='Engine RPM')
+
+gear_fig = go.Figure(layout=layout)
+for i in range(len(time_data)):
+    gear_fig.add_trace(go.Scatter(x=time_data[i], y=gear_data[i], mode='lines', name=f'Lap {i + 1}'))
+gear_fig.update_layout(title='Gear over Time', xaxis_title='Time (s)', yaxis_title='Gear')
+
+accel_fig = go.Figure(layout=layout)
+for i in range(len(time_data)):
+    accel_fig.add_trace(go.Scatter(x=time_data[i], y=accel_data[i], mode='lines', name=f'Lap {i + 1}'))
+accel_fig.update_layout(title='Accelerator Pedal Position over Time', xaxis_title='Time (s)', yaxis_title='Accelerator Pedal Position (%)')
+
+clutch_fig = go.Figure(layout=layout)
+for i in range(len(time_data)):
+    clutch_fig.add_trace(go.Scatter(x=time_data[i], y=clutch_data[i], mode='lines', name=f'Lap {i + 1}'))
+clutch_fig.update_layout(title='Clutch Pedal Position over Time', xaxis_title='Time (s)', yaxis_title='Clutch Pedal Position (%)')
+
+steering_fig = go.Figure(layout=layout)
+for i in range(len(time_data)):
+    steering_fig.add_trace(go.Scatter(x=time_data[i], y=steering_data[i], mode='lines', name=f'Lap {i + 1}'))
+steering_fig.update_layout(title='Steering Wheel Angle over Time', xaxis_title='Time (s)', yaxis_title='Steering Wheel Angle (degrees)')
+
 # Define the layout of the app with Tabs
 app.layout = html.Div([
     dcc.Tabs(id="tabs", children=[
@@ -116,6 +147,14 @@ app.layout = html.Div([
                     style={'backgroundColor': '#333', 'color': 'white'}
                 ),
             ], style={'width': '48%', 'display': 'inline-block'}),
+
+            # Display the original charts
+            dcc.Graph(figure=speed_fig),
+            dcc.Graph(figure=rpm_fig),
+            dcc.Graph(figure=gear_fig),
+            dcc.Graph(figure=accel_fig),
+            dcc.Graph(figure=clutch_fig),
+            dcc.Graph(figure=steering_fig),
 
             dcc.Graph(id='combined-graph')
         ]),
